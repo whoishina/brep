@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  bun_backend:
+    container_name: bun_backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    networks:
+      - bun-network
+
+  bun_frontend:
+    container_name: bun_frontend
+    ports:
+      - 80:80
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.react
+    networks:
+      - bun-network
+    depends_on:
+      - bun_backend
+    volumes:
+      - ./htpasswd:/etc/nginx/.htpasswd
+
+networks:
+  bun-network:
+    driver: bridge

@@ -1,0 +1,20 @@
+# Use Bun as the base image
+FROM oven/bun:latest as builder
+
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN bun install
+
+COPY . .
+RUN bun run ui:build
+
+FROM nginx:1.23-alpine
+
+# Remove default Nginx static content
+RUN rm -rf /usr/share/nginx/html/*
+
+COPY --from=builder /app/dist/html /usr/share/nginx/html
+COPY docker/nginx/config.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

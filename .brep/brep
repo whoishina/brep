@@ -1,0 +1,62 @@
+#!/usr/bin/env bun
+import chalk from "chalk";
+import path from "path";
+import fs from "fs";
+
+async function loadCommand(command: string, subcommand: string) {
+  const commandPath = path.join(
+    process.cwd(),
+    ".brep/commands",
+    command,
+    subcommand,
+    "index.ts"
+  );
+
+  if (!fs.existsSync(commandPath)) {
+    console.error(chalk.red(`Command not found: ${command} ${subcommand}`));
+    process.exit(1);
+  }
+
+  try {
+    const commandModule = await import(commandPath);
+    return commandModule.default;
+  } catch (error) {
+    console.error(chalk.red(`Error loading command: ${error}`));
+    process.exit(1);
+  }
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const subcommand = args[1];
+  const commandArgs = args.slice(2);
+
+  if (!command || !subcommand) {
+    console.log(chalk.blue("\nAvailable commands:"));
+    console.log(chalk.blue("=".repeat(50)));
+    console.log(chalk.yellow("  ui create-page") + " - Create a new page");
+    console.log(
+      chalk.yellow("  ui list-routes") + " - Show all frontend routes"
+    );
+    console.log(
+      chalk.yellow("  ui remove-page") + " - Remove an existing page"
+    );
+    console.log(chalk.blue("\nSystem commands:"));
+    console.log(
+      chalk.yellow("  system completion") +
+        " - Generate shell completion scripts"
+    );
+    console.log(chalk.blue("\nUsage:"));
+    console.log(chalk.white("  bun brep <command> <subcommand> [args...]"));
+    process.exit(1);
+  }
+
+  const commandHandler = await loadCommand(command, subcommand);
+  await commandHandler(...commandArgs);
+}
+
+main().catch((error) => {
+  console.error(chalk.red(`Error: ${error}`));
+  process.exit(1);
+});

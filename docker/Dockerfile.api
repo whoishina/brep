@@ -1,0 +1,29 @@
+FROM oven/bun:latest AS builder
+
+WORKDIR /app
+
+# Copy all files first
+COPY . .
+
+# Install dependencies
+RUN bun install
+
+# Generate Prisma client
+RUN bun prisma:generate
+
+# Build the project
+RUN bun run app:build
+
+# Use a smaller base image for production
+FROM oven/bun:slim AS runner
+
+WORKDIR /app
+
+# Copy built files and dependencies
+COPY --from=builder /app /app
+
+# Expose necessary ports
+EXPOSE 3000
+
+# Run the application
+CMD ["bun", "run", "app:start"]
