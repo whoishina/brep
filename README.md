@@ -1,4 +1,4 @@
-# VKS Tổng Hợp
+# Bun, React, Elysia, Prisma
 
 Ứng dụng web được xây dựng bằng React + Elysia + Bun + Vite.
 
