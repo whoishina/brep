@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   bun_backend:
@@ -22,6 +22,8 @@ services:
       - bun_backend
     volumes:
       - ./htpasswd:/etc/nginx/.htpasswd
+    environment:
+      - SITE_DOMAIN=${SITE_DOMAIN}
 
 networks:
   bun-network:

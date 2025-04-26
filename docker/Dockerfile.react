@@ -1,20 +1,26 @@
 # Use Bun as the base image
 FROM oven/bun:latest as builder
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install
 
 COPY . .
+RUN bun prisma:generate
 RUN bun run ui:build
 
 FROM nginx:1.23-alpine
+
+# Install envsubst
+RUN apk add --no-cache gettext
 
 # Remove default Nginx static content
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/dist/html /usr/share/nginx/html
-COPY docker/nginx/config.conf /etc/nginx/nginx.conf
+COPY docker/nginx/config.conf /etc/nginx/nginx.conf.template
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+CMD ["/bin/sh", "-c", "envsubst '${SITE_DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
