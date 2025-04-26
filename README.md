@@ -1,45 +1,75 @@
-# Bun, React, Elysia, Prisma
+# Bun Fullstack Application
 
-Ứng dụng web được xây dựng bằng React + Elysia + Bun + Vite.
+A modern fullstack web application built with Bun, React, Elysia, and Prisma.
 
-## Yêu Cầu Hệ Thống
+## System Requirements
 
-- Bun
+- [Bun](https://bun.sh) (JavaScript runtime and package manager)
+- Node.js (for development tools)
 
-## Cài Đặt
+## Getting Started
 
-Cài đặt dependencies:
+1. Install dependencies:
 ```bash
 bun install
 ```
 
-## Chạy Ứng Dụng
+2. Generate Prisma client:
+```bash
+bun prisma:generate
+```
 
-Để chạy ứng dụng trong môi trường development:
+## Development
 
+Run the development server:
 ```bash
 bun dev
 ```
 
-## Công Nghệ Sử Dụng
+This will start both the frontend and backend servers concurrently.
 
-- [Bun](https://bun.sh) - JavaScript runtime và package manager
+## Available Scripts
+
+- `bun dev` - Start development servers (frontend + backend)
+- `bun build` - Build both frontend and backend for production
+- `bun start` - Start production servers
+- `bun ui:dev` - Start frontend development server
+- `bun app:dev` - Start backend development server
+- `bun lint` - Run ESLint
+
+## Project Structure
+
+```
+.
+├── src/                # Source code
+│   ├── app/           # Backend application (Elysia)
+│   ├── ui/            # Frontend application (React)
+│   └── prisma/        # Database schema and migrations
+├── docker/            # Docker configuration
+├── public/            # Static assets
+└── dist/              # Build output
+```
+
+## Technologies Used
+
+### Backend
+- [Bun](https://bun.sh) - JavaScript runtime
 - [Elysia](https://elysiajs.com) - Web framework
-- TypeScript - Ngôn ngữ lập trình
-- ReactJS
+- [Prisma](https://www.prisma.io) - ORM and database toolkit
+- TypeScript - Programming language
 
-## Cấu Trúc Dự Án
+### Frontend
+- React 19
+- Vite - Build tool
+- TailwindCSS - Styling
+- Radix UI - Component library
+- React Query - Data fetching
+- React Router - Routing
 
-```
-vks-tong-hop/
-├── src/
-│   ├── backend/     # Backend code
-│   ├── frontend/    # Frontend code
-│   └── prisma/      # Prisma
-│
-├── public/          # Static files
-└── package.json     # Project dependencies
-```
+### Development Tools
+- ESLint - Code linting
+- TypeScript - Type checking
+- Docker - Containerization
 
 ## License
 
