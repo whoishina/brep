@@ -1,0 +1,4 @@
+name: Bun Fullstack Application Template
+description: A modern fullstack web application built with Bun, React, Elysia, and Prisma
+default_branch: main
+include_all_branches: false 
