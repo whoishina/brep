@@ -6,4 +6,6 @@ export const routes = {
     root: "/",
   },
   page: {},
+  chat: "/chat",
+
 };
