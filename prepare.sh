@@ -4,6 +4,9 @@ cp .env.example .env
 # install dependencies
 bun install
 
+# create public folder
+mkdir public
+
 # remove this file
 rm prepare.sh
 
