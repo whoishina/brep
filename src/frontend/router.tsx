@@ -4,7 +4,6 @@ import MainLayout from "./layouts/main/main";
 import HomePage from "./pages/home/home";
 import NotFoundPage from "./pages/notFound";
 import ErrorPage from "./pages/error";
-import ChatPage from "./pages/chat";
 
 export const reactRouter: RouteObject[] = [
   {
@@ -14,10 +13,6 @@ export const reactRouter: RouteObject[] = [
       {
         path: routes.home.root,
         element: <HomePage />,
-      },
-      {
-        path: routes.chat,
-        element: <ChatPage />,
       },
     ],
   },
