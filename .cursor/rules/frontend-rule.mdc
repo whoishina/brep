@@ -1,0 +1,32 @@
+---
+description: 
+globs: src/frontend/**/*.tsx,src/frontend/**/*.ts
+alwaysApply: false
+---
+## 🧩 Frontend Structure (`src/frontend`)
+
+```
+src/frontend/
+├── router.tsx                # Defines application routes
+├── layouts/                  # Shared layout components (header, footer, sidebar, etc.)
+│   └── *.tsx
+├── pages/                    # Feature-based or route-based page components
+│   └── *.tsx
+├── provider/                 # Context providers for global state or configuration
+│   └── *.tsx
+├── components/
+│   ├── ui/                   # UI components from Shadcn/ui
+│   │   └── *.tsx
+│   └── *.tsx                 # Reusable custom components
+├── styles/
+│   └── global.sass           # Global stylesheet and Tailwind overrides
+```
+
+- **`router.tsx`**: Entry point for React Router configuration.
+- **`layouts/`**: Houses layout templates used across pages (e.g., with header/footer/sidebar).
+- **`pages/`**: Contains route-mapped page components implementing each feature/view.
+- **`provider/`**: Includes React context providers for theme, auth, settings, etc.
+- **`components/ui/`**: Prebuilt UI components from Shadcn/ui.
+- **`components/`**: Reusable custom components not tied to a specific page.
+- **`styles/global.sass`**: Centralized styling, Tailwind customizations.
+

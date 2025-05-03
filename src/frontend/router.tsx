@@ -15,11 +15,11 @@ export const reactRouter: RouteObject[] = [
         path: routes.home.root,
         element: <HomePage />,
       },
-    
       {
         path: routes.chat,
         element: <ChatPage />,
-      },],
+      },
+    ],
   },
   {
     path: "*",
