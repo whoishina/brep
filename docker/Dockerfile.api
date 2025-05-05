@@ -18,13 +18,15 @@ COPY package.json bun.lock ./
 # Install dependencies with production flag
 RUN bun install --production
 
-# Copy only necessary files for build
-COPY prisma ./prisma/
+# Copy source files and configuration
 COPY src ./src/
 COPY tsconfig.json ./
+COPY prisma.config.ts ./
 
-# Generate Prisma client
-RUN bun prisma:generate
+# Generate Prisma client if prisma directory exists
+RUN if [ -d "prisma" ]; then \
+        bun prisma:generate; \
+    fi
 
 # Build the project
 RUN bun run app:build
@@ -47,7 +49,10 @@ ENV BUN_ENV=production
 COPY --from=builder --chown=bunuser:nodejs /app/package.json /app/bun.lock ./
 COPY --from=builder --chown=bunuser:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=bunuser:nodejs /app/dist ./dist
-COPY --from=builder --chown=bunuser:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=bunuser:nodejs /app/prisma.config.ts ./
+
+# Copy prisma directory if it exists
+COPY --from=builder --chown=bunuser:nodejs /app/prisma ./prisma 2>/dev/null || true
 
 # Switch to non-root user
 USER bunuser
