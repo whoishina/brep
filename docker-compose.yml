@@ -8,11 +8,17 @@ services:
       dockerfile: docker/Dockerfile.api
     networks:
       - bun-network
+    env_file:
+      - .env
+    environment:
+      - PORT=${PORT:-3000}
+      - NODE_ENV=${NODE_ENV:-development}
+      - DATABASE_URL=${DATABASE_URL}
 
   bun_frontend:
     container_name: bun_frontend
     ports:
-      - 80:80
+      - "${PORT:-80}:80"
     build:
       context: .
       dockerfile: docker/Dockerfile.react
@@ -20,10 +26,11 @@ services:
       - bun-network
     depends_on:
       - bun_backend
-    volumes:
-      - ./htpasswd:/etc/nginx/.htpasswd
+    env_file:
+      - .env
     environment:
       - SITE_DOMAIN=${SITE_DOMAIN}
+      - NODE_ENV=${NODE_ENV:-development}
 
 networks:
   bun-network:

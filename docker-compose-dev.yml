@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  bun_backend:
+    container_name: bun_backend_dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - bun-network
+    env_file:
+      - .env
+    environment:
+      - PORT=${PORT:-3000}
+      - NODE_ENV=development
+    command: bun run dev
+    ports:
+      - "${PORT:-3000}:3000"
+
+  bun_frontend:
+    container_name: bun_frontend_dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.react
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - bun-network
+    depends_on:
+      - bun_backend
+    env_file:
+      - .env
+    environment:
+      - SITE_DOMAIN=${SITE_DOMAIN}
+      - NODE_ENV=development
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    command: bun run dev
+
+networks:
+  bun-network:
+    driver: bridge
