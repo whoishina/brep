@@ -1,5 +1,9 @@
-# Use Bun as the base image with specific version
-FROM oven/bun:1.0.25 as builder
+ARG BUN_VERSION=1.2.10
+ARG NODE_ENV=development
+ARG SITE_DOMAIN=localhost # Add default value for build argument
+
+# 1. Build Stage
+FROM oven/bun:${BUN_VERSION} AS builder
 
 # Add metadata labels
 LABEL maintainer="KumaLabs"
@@ -15,7 +19,7 @@ WORKDIR /app
 
 # Copy dependency files first for better caching
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy source files
 COPY . .
@@ -39,6 +43,11 @@ RUN apk add --no-cache gettext && \
 COPY --from=builder /app/dist/html /usr/share/nginx/html
 COPY docker/nginx/config.conf /etc/nginx/nginx.conf.template
 
+# Use the build argument in envsubst
+RUN export SITE_DOMAIN=${SITE_DOMAIN:-localhost} && \
+    envsubst '${SITE_DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && \
+    chown nginx:nginx /etc/nginx/nginx.conf
+
 # Expose port
 EXPOSE 80
 
@@ -48,10 +57,12 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
     chown -R nginx:nginx /etc/nginx/conf.d && \
+    chown nginx:nginx /etc/nginx/nginx.conf.template && \
+    chown nginx:nginx /etc/nginx/ && \
     touch /var/run/nginx.pid && \
     chown -R nginx:nginx /var/run/nginx.pid
 
 USER nginx
 
-# Start nginx with environment variable substitution
-CMD ["/bin/sh", "-c", "envsubst '${SITE_DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

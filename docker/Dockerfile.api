@@ -1,4 +1,4 @@
-FROM oven/bun:1.0.25-slim AS builder
+FROM oven/bun:1.2.10-slim AS builder
 
 # Add metadata labels
 LABEL maintainer="Kuma Labs"
@@ -15,10 +15,12 @@ ENV BUN_ENV=production
 # Copy only package files first for better caching
 COPY package.json bun.lock ./
 
-# Install dependencies with production flag
-RUN bun install --production
+# Install all dependencies (including devDependencies for build)
+RUN bun install
 
 # Copy source files and configuration
+COPY .env ./
+COPY public ./public
 COPY src ./src/
 COPY tsconfig.json ./
 COPY prisma.config.ts ./
@@ -32,11 +34,12 @@ RUN if [ -d "prisma" ]; then \
 RUN bun run app:build
 
 # Production stage
-FROM oven/bun:1.0.25-slim AS runner
+FROM oven/bun:1.2.10-slim AS runner
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 bunuser && \
+    mkdir -p /app && \
     chown -R bunuser:nodejs /app
 
 WORKDIR /app
@@ -49,10 +52,11 @@ ENV BUN_ENV=production
 COPY --from=builder --chown=bunuser:nodejs /app/package.json /app/bun.lock ./
 COPY --from=builder --chown=bunuser:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=bunuser:nodejs /app/dist ./dist
+COPY --from=builder --chown=bunuser:nodejs /app/public ./public
 COPY --from=builder --chown=bunuser:nodejs /app/prisma.config.ts ./
 
-# Copy prisma directory if it exists
-COPY --from=builder --chown=bunuser:nodejs /app/prisma ./prisma 2>/dev/null || true
+# Copy prisma directory from builder (if it exists in the source)
+COPY --from=builder --chown=bunuser:nodejs /app/src/prisma ./src/prisma
 
 # Switch to non-root user
 USER bunuser

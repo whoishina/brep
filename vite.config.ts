@@ -27,10 +27,20 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          "ui-vendor": ["@radix-ui/react-*"],
-          "utils-vendor": ["lodash", "date-fns", "zod"],
+        manualChunks(id) {
+          if (id.includes("node_modules/react")) {
+            return "react-vendor";
+          }
+          if (id.includes("node_modules/@radix-ui/react-")) {
+            return "ui-vendor";
+          }
+          if (
+            id.includes("node_modules/lodash") ||
+            id.includes("node_modules/date-fns") ||
+            id.includes("node_modules/zod")
+          ) {
+            return "utils-vendor";
+          }
         },
       },
     },

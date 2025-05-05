@@ -9,6 +9,7 @@ services:
     networks:
       - bun-network
     env_file:
+      - docker/default.env
       - .env
     environment:
       - PORT=${PORT:-3000}
@@ -22,14 +23,16 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.react
+      args:
+        SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
     networks:
       - bun-network
     depends_on:
       - bun_backend
     env_file:
+      - docker/default.env
       - .env
     environment:
-      - SITE_DOMAIN=${SITE_DOMAIN}
       - NODE_ENV=${NODE_ENV:-development}
 
 networks:
