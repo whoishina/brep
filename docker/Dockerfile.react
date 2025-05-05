@@ -1,26 +1,57 @@
-# Use Bun as the base image
-FROM oven/bun:latest as builder
-RUN apt-get update -y && apt-get install -y openssl
+# Use Bun as the base image with specific version
+FROM oven/bun:1.0.25 as builder
+
+# Add metadata labels
+LABEL maintainer="KumaLabs"
+LABEL description="React application with Bun and Nginx"
+
+# Install dependencies and clean up in one layer
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Copy dependency files first for better caching
 COPY package.json bun.lock ./
-RUN bun install
+RUN bun install --frozen-lockfile
 
+# Copy source files
 COPY . .
-RUN bun prisma:generate
-RUN bun run ui:build
 
+# Generate Prisma client and build the application
+RUN bun prisma:generate && \
+    bun run ui:build
+
+# Use specific nginx version
 FROM nginx:1.23-alpine
 
-# Install envsubst
-RUN apk add --no-cache gettext
+# Add metadata labels
+LABEL maintainer="KumaLabs"
+LABEL description="Nginx server for React application"
 
-# Remove default Nginx static content
-RUN rm -rf /usr/share/nginx/html/*
+# Install envsubst and clean up in one layer
+RUN apk add --no-cache gettext && \
+    rm -rf /usr/share/nginx/html/*
 
+# Copy built files and nginx config
 COPY --from=builder /app/dist/html /usr/share/nginx/html
 COPY docker/nginx/config.conf /etc/nginx/nginx.conf.template
 
+# Expose port
 EXPOSE 80
 
+# Set non-root user for security
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
+# Start nginx with environment variable substitution
 CMD ["/bin/sh", "-c", "envsubst '${SITE_DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]

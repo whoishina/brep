@@ -1,15 +1,27 @@
-FROM oven/bun:latest AS builder
+FROM oven/bun:1.0.25-slim AS builder
 
+# Add metadata labels
+LABEL maintainer="Kuma Labs"
+LABEL description="API service for Kuma Labs"
+LABEL version="1.0"
+
+# Set working directory
 WORKDIR /app
 
-# Copy package files first to leverage Docker cache
+# Set environment variables
+ENV NODE_ENV=production
+ENV BUN_ENV=production
+
+# Copy only package files first for better caching
 COPY package.json bun.lock ./
 
-# Install dependencies (this layer will be cached unless package files change)
-RUN bun install
+# Install dependencies with production flag
+RUN bun install --production
 
-# Copy the rest of the files
-COPY . .
+# Copy only necessary files for build
+COPY prisma ./prisma/
+COPY src ./src/
+COPY tsconfig.json ./
 
 # Generate Prisma client
 RUN bun prisma:generate
@@ -17,16 +29,35 @@ RUN bun prisma:generate
 # Build the project
 RUN bun run app:build
 
-# Use a smaller base image for production
-FROM oven/bun:slim AS runner
+# Production stage
+FROM oven/bun:1.0.25-slim AS runner
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 bunuser && \
+    chown -R bunuser:nodejs /app
 
 WORKDIR /app
 
-# Copy built files and dependencies
-COPY --from=builder /app /app
+# Set environment variables
+ENV NODE_ENV=production
+ENV BUN_ENV=production
 
-# Expose necessary ports
+# Copy only necessary files from builder
+COPY --from=builder --chown=bunuser:nodejs /app/package.json /app/bun.lock ./
+COPY --from=builder --chown=bunuser:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=bunuser:nodejs /app/dist ./dist
+COPY --from=builder --chown=bunuser:nodejs /app/prisma ./prisma
+
+# Switch to non-root user
+USER bunuser
+
+# Expose port
 EXPOSE 3000
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
 
 # Run the application
 CMD ["bun", "run", "app:start"]
