@@ -12,7 +12,6 @@
     "ui:start": "serve -s dist/html -p 5173",
     "lint": "eslint .",
     "app:dev": "bun --watch src/app/index.ts",
-    "app:bridge": "bun --bun --watch src/bridge.ts",
     "app:build": "bun build src/app/index.ts --target bun --outdir ./dist/app",
     "app:start": "bun --bun dist/app/index.js",
     "dev": "concurrently \"bun --bun run app:dev\" \"bun --bun run ui:dev\"",
