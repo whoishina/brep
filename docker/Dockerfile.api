@@ -2,11 +2,14 @@ FROM oven/bun:latest AS builder
 
 WORKDIR /app
 
-# Copy all files first
-COPY . .
+# Copy package files first to leverage Docker cache
+COPY package.json bun.lock ./
 
-# Install dependencies
+# Install dependencies (this layer will be cached unless package files change)
 RUN bun install
+
+# Copy the rest of the files
+COPY . .
 
 # Generate Prisma client
 RUN bun prisma:generate
