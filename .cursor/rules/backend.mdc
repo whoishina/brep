@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Backend structure (src/app)
+- Backend is a mixins of ElysiaJS ( a high performance javascript api framework that work on bun) and prisma ( ORM )
+- Always adding a feature as a module.
