@@ -1,6 +1,6 @@
 ---
 description: 
-globs: src/frontend/**/*.tsx,src/frontend/**/*.ts
+globs: src/frontend/**/*.tsx,src/frontend/**/*.ts,src/frontend/*.tsx
 alwaysApply: false
 ---
 ## 🧩 Frontend Structure (`src/frontend`)
@@ -29,4 +29,8 @@ src/frontend/
 - **`components/ui/`**: Prebuilt UI components from Shadcn/ui.
 - **`components/`**: Reusable custom components not tied to a specific page.
 - **`styles/global.sass`**: Centralized styling, Tailwind customizations.
+
+## Call to backend using API.
+- Always prefer to use Eden [eden.provider.tsx](mdc:src/frontend/providers/eden.provider.tsx) for end-to-end safety api ( currently only available for mutation, if not just use eden)
+- Read [eden.provider.tsx](mdc:src/frontend/providers/eden.provider.tsx) carefully before using it to avoid lint or import problems.
 
